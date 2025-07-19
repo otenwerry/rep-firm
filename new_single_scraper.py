@@ -130,6 +130,11 @@ def process_with_chatgpt(text_content, rep_firm_name=None):
         2. Equipment categories or product types they offer (exact products listed; be as specific as possible)
         3. Water/wastewater treatment process steps they cover (broad categories only; be as specific as possible)
 
+        IMPORTANT: Each individual product should be on its own row. If a brand carries multiple products, create separate rows for each product. For example:
+        - If you see "Brand A carries pumps, valves, and filters", create 3 separate rows
+        - If you see "Brand B offers Surface Aerators and Submersible Mixers", create 2 separate rows
+        - Do not combine multiple products into a single cell
+
         Format the output as CSV with exactly these 4 columns: Rep Firm Name, Brand Carried, Product Covered, Product Space
         Include the header row. Do not include any other text, comments, or formatting."""
     
@@ -137,7 +142,7 @@ def process_with_chatgpt(text_content, rep_firm_name=None):
         response = client.chat.completions.create(
             model="gpt-4",  # or your specific model name
             messages=[
-                {"role": "system", "content": "You are a helpful assistant that extracts and categorizes rep firm line sheet information. Always return data in CSV format with exactly 4 columns: Rep Firm Name, Brand Carried, Product Covered, Product Space."},
+                {"role": "system", "content": "You are a helpful assistant that extracts and categorizes rep firm line sheet information. Always return data in CSV format with exactly 4 columns: Rep Firm Name, Brand Carried, Product Covered, Product Space. Each individual product should be on its own row, even if multiple products are mentioned together."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=4000,
