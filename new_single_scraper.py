@@ -275,7 +275,6 @@ if __name__ == "__main__":
     try:
         output_file = scrape_rep_firm_line_sheet(
             url=example_url,
-            rep_firm_name="Example Rep Firm",
             output_filename="example_output.xlsx"
         )
         print(f"Results saved to: {output_file}")
