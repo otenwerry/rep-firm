@@ -134,7 +134,7 @@ def process_with_chatgpt(text_content, rep_firm_name=None):
     
     try:
         response = client.chat.completions.create(
-            model="gpt-4",  # or your specific model name
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant that extracts and categorizes rep firm line sheet information into structured tables."},
                 {"role": "user", "content": prompt}
