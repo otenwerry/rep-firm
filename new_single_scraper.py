@@ -26,7 +26,7 @@ def setup_azure_openai_client():
     client = AzureOpenAI(
         api_key=api_key,
         api_version="2024-02-15-preview",
-        azure_endpoint="https://repfirm.openai.azure.com/"
+        azure_endpoint="https://adity-mczs6jhv-eastus2.cognitiveservices.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2025-01-01-preview"
     )
     return client
 
@@ -134,7 +134,7 @@ def process_with_chatgpt(text_content, rep_firm_name=None):
     
     try:
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4",  # or your specific model name
             messages=[
                 {"role": "system", "content": "You are a helpful assistant that extracts and categorizes rep firm line sheet information into structured tables."},
                 {"role": "user", "content": prompt}
@@ -292,12 +292,13 @@ def scrape_rep_firm_line_sheet(url, rep_firm_name=None, output_filename=None):
 
 # Example usage
 if __name__ == "__main__":
-    url = "https://shapecal.com/equipment"
+    # Example usage - replace with actual URL
+    example_url = "https://shapecal.com/equipment/"
     
     try:
         output_file = scrape_rep_firm_line_sheet(
-            url=url,
-            rep_firm_name="ShapeCal",
+            url=example_url,
+            rep_firm_name="Example Rep Firm",
             output_filename="example_output.xlsx"
         )
         print(f"Results saved to: {output_file}")
