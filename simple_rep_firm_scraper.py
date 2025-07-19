@@ -1286,7 +1286,7 @@ def main():
     
     # Only scrape the ShapeCal site
     rep_firm_urls = [
-        "https://shapecal.com/"
+        "https://shapecal.com/equipment/"
     ]
     
     # Scrape the single rep firm and save to a specific Excel file
