@@ -292,13 +292,12 @@ def scrape_rep_firm_line_sheet(url, rep_firm_name=None, output_filename=None):
 
 # Example usage
 if __name__ == "__main__":
-    # Example usage - replace with actual URL
-    example_url = "https://example-rep-firm.com"
+    url = "https://shapecal.com/equipment"
     
     try:
         output_file = scrape_rep_firm_line_sheet(
-            url=example_url,
-            rep_firm_name="Example Rep Firm",
+            url=url,
+            rep_firm_name="ShapeCal",
             output_filename="example_output.xlsx"
         )
         print(f"Results saved to: {output_file}")
