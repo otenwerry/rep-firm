@@ -173,35 +173,33 @@ def parse_chatgpt_response_to_dataframe(chatgpt_response):
     print("Raw ChatGPT response:")
     print(chatgpt_response)
     
-    try:
-        # Use pandas to read CSV directly from the string
-        from io import StringIO
-        df = pd.read_csv(StringIO(chatgpt_response), skip_blank_lines=True)
+    # Split into lines and process each line
+    lines = chatgpt_response.strip().split('\n')
+    table_data = []
+    
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+            
+        # Skip header line
+        if line.lower().startswith('rep firm name'):
+            continue
+            
+        # Split by comma and clean up
+        cells = [cell.strip() for cell in line.split(',')]
         
-        # Ensure we have the correct column names
-        expected_columns = ['Rep Firm Name', 'Brand Carried', 'Product Covered', 'Product Space']
-        if list(df.columns) != expected_columns:
-            # If column names don't match, rename them
-            if len(df.columns) >= 4:
-                df = df.iloc[:, :4]  # Take only first 4 columns
-                df.columns = expected_columns
-        
-        # Clean up the data
-        df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-        df = df.dropna(how='all')
-        
-        print(f"Created DataFrame with {len(df)} rows")
-        print(f"DataFrame: {df}")
-        return df
-        
-    except Exception as e:
-        print(f"Error parsing CSV: {str(e)}")
-        print("Raw ChatGPT response:")
-        print(chatgpt_response)
-        
-        # Fallback: create empty DataFrame
-        df = pd.DataFrame(columns=['Rep Firm Name', 'Brand Carried', 'Product Covered', 'Product Space'])
-        return df
+        # Only add if we have exactly 4 columns
+        if len(cells) == 4:
+            table_data.append(cells)
+            print(f"Added row: {cells}")
+    
+    # Create DataFrame
+    df = pd.DataFrame(table_data, columns=['Rep Firm Name', 'Brand Carried', 'Product Covered', 'Product Space'])
+    
+    print(f"Created DataFrame with {len(df)} rows")
+    print(f"DataFrame: {df}")
+    return df
 
 
 def save_to_excel(df, output_filename=None):
