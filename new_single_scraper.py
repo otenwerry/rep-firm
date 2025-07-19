@@ -63,34 +63,7 @@ def extract_website_data(url):
         # Wait for page to load
         time.sleep(3)
         
-        # Try to find common line sheet navigation elements
-        line_sheet_selectors = [
-            "a[href*='line']",
-            "a[href*='product']", 
-            "a[href*='catalog']",
-            "a[href*='equipment']",
-            "a[href*='brand']",
-            "a[href*='manufacturer']"
-        ]
-        
-        # Look for line sheet links and click if found
-        for selector in line_sheet_selectors:
-            try:
-                elements = driver.find_elements(By.CSS_SELECTOR, selector)
-                for element in elements:
-                    text = element.text.lower()
-                    if any(keyword in text for keyword in ['line', 'product', 'catalog', 'equipment', 'brand']):
-                        print(f"Found line sheet link: {element.text}")
-                        element.click()
-                        time.sleep(2)
-                        break
-                else:
-                    continue
-                break
-            except Exception as e:
-                continue
-        
-        # Get the page source after potential navigation
+        # Get the page source
         page_source = driver.page_source
         
         # Parse with BeautifulSoup
