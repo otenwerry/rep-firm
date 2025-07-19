@@ -1,0 +1,13 @@
+This is a rep firm, a type of independent sales company. think of it like an independent car dealership, but for engineered products from small and medium sized manufacturers. lots of rep firms have basic websites. we’re interested in one piece of information. the line sheet. usually in the site navigation menu, under “line sheet”, “products”, “catalog”, or “equipment” or something similar. here, we navigate to the “equipment” tab.
+
+we see here a list of brands and products. ctrl + A to select everything on this page and ctrl + C to copy it. 
+
+then, ask ChatGPT the following prompt, and follow it by pasting the webpage we just copied: 
+“can you break this out into a table of Rep FIrm NAme - Brand Carried (one at a time) - Product Covered - Space for space, keep it to broad categories for steps in water/wastewater treatment. So for example, aeratiors, flocculators, or coagulators but not Spike Aerators, Paddle Wheel Flocculators, or Inorganic Coagulants (for example). it's from a website and is unstructured data so be ready to format only what's relevant”
+
+you may have to do this with API calls for Azure OpenAI:
+
+Location/Region: eastus
+Endpoint: https://repfirm.openai.azure.com/
+
+Take the ensuing ChatGPT file and export it to excel. 
