@@ -163,6 +163,10 @@ def parse_chatgpt_response_to_dataframe(chatgpt_response):
         pd.DataFrame: Structured data
     """
     print("Parsing ChatGPT response to DataFrame...")
+    # Debug: Print the raw response to see what we're working with
+    print("Raw ChatGPT response:")
+    print(chatgpt_response)
+    print("\n" + "="*50 + "\n")
     
     # Try to extract table data from the response
     lines = chatgpt_response.strip().split('\n')
@@ -180,7 +184,8 @@ def parse_chatgpt_response_to_dataframe(chatgpt_response):
         if any(keyword in line.lower() for keyword in ['rep firm', 'brand', 'product', 'space', 'product space']):
             # Extract headers
             if '|' in line:
-                headers = [h.strip() for h in line.split('|')]
+                # Split by | and filter out empty strings
+                headers = [h.strip() for h in line.split('|') if h.strip()]
             else:
                 # Try to split by multiple spaces
                 headers = re.split(r'\s{2,}', line)
@@ -188,7 +193,8 @@ def parse_chatgpt_response_to_dataframe(chatgpt_response):
             
         # Check if this looks like data row
         if '|' in line:
-            row_data = [cell.strip() for cell in line.split('|')]
+            # Split by | and filter out empty strings
+            row_data = [cell.strip() for cell in line.split('|') if cell.strip()]
             if len(row_data) >= 4:  # Should have at least 4 columns
                 table_data.append(row_data)
         elif re.search(r'\s{2,}', line):
