@@ -14,7 +14,7 @@ import os
 from urllib.parse import urljoin, urlparse
 from datetime import datetime
 
-class SimpleRepFirmScraper:
+class SimpleRepFirmScraper: #cool
     def __init__(self, azure_key, azure_endpoint):
         """Initialize the scraper with Azure OpenAI credentials"""
         self.azure_key = azure_key
