@@ -114,7 +114,7 @@ def process_with_chatgpt(text_content, rep_firm_name=None):
     content_preview = text_content[:2000] + "..." if len(text_content) > 2000 else text_content
     
     # Construct the detailed prompt for better extraction
-    prompt = f"""Please extract a table with the following columns:
+    prompt = f"""Please extract information with the following columns:
         - Rep Firm Name (must be the official, properly capitalized name of the rep firm, not an abbreviation, domain, or placeholder)
         - Brand Carried (must be the official, properly capitalized brand/manufacturer name, not a filename, abbreviation, or unclear string)
         - Product Covered (extract the exact products listed or mentioned on the page; be as specific as possible)
@@ -130,13 +130,14 @@ def process_with_chatgpt(text_content, rep_firm_name=None):
         2. Equipment categories or product types they offer (exact products listed; be as specific as possible)
         3. Water/wastewater treatment process steps they cover (broad categories only; be as specific as possible)
 
-        Format the output as a clean table with the 4 columns specified above. Do not include any other columns, text, or comments other than those four specified."""
+        Format the output as CSV with exactly these 4 columns: Rep Firm Name, Brand Carried, Product Covered, Product Space
+        Include the header row. Do not include any other text, comments, or formatting."""
     
     try:
         response = client.chat.completions.create(
             model="gpt-4",  # or your specific model name
             messages=[
-                {"role": "system", "content": "You are a helpful assistant that extracts and categorizes rep firm line sheet information into structured tables."},
+                {"role": "system", "content": "You are a helpful assistant that extracts and categorizes rep firm line sheet information. Always return data in CSV format with exactly 4 columns: Rep Firm Name, Brand Carried, Product Covered, Product Space."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=4000,
@@ -163,74 +164,35 @@ def parse_chatgpt_response_to_dataframe(chatgpt_response):
         pd.DataFrame: Structured data
     """
     print("Parsing ChatGPT response to DataFrame...")
-    # Debug: Print the raw response to see what we're working with
-    print("Raw ChatGPT response:")
-    print(chatgpt_response)
-    print("\n" + "="*50 + "\n")
     
-    # Try to extract table data from the response
-    lines = chatgpt_response.strip().split('\n')
-    
-    # Find the table data (look for lines with multiple columns separated by | or tabs)
-    table_data = []
-    headers = None
-    
-    for line in lines:
-        line = line.strip()
-        if not line:
-            continue
-            
-        # Check if this looks like a header row
-        if any(keyword in line.lower() for keyword in ['rep firm', 'brand', 'product', 'space', 'product space']):
-            # Extract headers
-            if '|' in line:
-                # Split by | and filter out empty strings
-                headers = [h.strip() for h in line.split('|') if h.strip()]
-            else:
-                # Try to split by multiple spaces
-                headers = re.split(r'\s{2,}', line)
-            continue
-            
-        # Check if this looks like data row
-        if '|' in line:
-            # Split by | and filter out empty strings
-            row_data = [cell.strip() for cell in line.split('|') if cell.strip()]
-            if len(row_data) >= 4:  # Should have at least 4 columns
-                table_data.append(row_data)
-        elif re.search(r'\s{2,}', line):
-            # Split by multiple spaces
-            row_data = re.split(r'\s{2,}', line)
-            if len(row_data) >= 4:
-                table_data.append(row_data)
-    
-    # If we couldn't parse the table properly, try a different approach
-    if not table_data:
-        # Look for patterns in the text that might indicate product information
-        pattern = r'([A-Z][a-zA-Z\s&]+)\s*[-–]\s*([A-Z][a-zA-Z\s&]+)\s*[-–]\s*([A-Z][a-zA-Z\s&]+)'
-        matches = re.findall(pattern, chatgpt_response)
+    try:
+        # Use pandas to read CSV directly from the string
+        from io import StringIO
+        df = pd.read_csv(StringIO(chatgpt_response), skip_blank_lines=True)
         
-        if matches:
-            table_data = []
-            for match in matches:
-                if len(match) >= 3:
-                    table_data.append(list(match))
-    
-    # Create DataFrame
-    if table_data:
-        if headers and len(headers) >= 4:
-            df = pd.DataFrame(table_data, columns=headers[:4])
-        else:
-            df = pd.DataFrame(table_data, columns=['Rep Firm Name', 'Brand Carried', 'Product Covered', 'Product Space'])
-    else:
-        # Create empty DataFrame with proper columns
+        # Ensure we have the correct column names
+        expected_columns = ['Rep Firm Name', 'Brand Carried', 'Product Covered', 'Product Space']
+        if list(df.columns) != expected_columns:
+            # If column names don't match, rename them
+            if len(df.columns) >= 4:
+                df = df.iloc[:, :4]  # Take only first 4 columns
+                df.columns = expected_columns
+        
+        # Clean up the data
+        df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+        df = df.dropna(how='all')
+        
+        print(f"Created DataFrame with {len(df)} rows")
+        return df
+        
+    except Exception as e:
+        print(f"Error parsing CSV: {str(e)}")
+        print("Raw ChatGPT response:")
+        print(chatgpt_response)
+        
+        # Fallback: create empty DataFrame
         df = pd.DataFrame(columns=['Rep Firm Name', 'Brand Carried', 'Product Covered', 'Product Space'])
-    
-    # Clean up the data
-    df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-    df = df.dropna(how='all')
-    
-    print(f"Created DataFrame with {len(df)} rows")
-    return df
+        return df
 
 
 def save_to_excel(df, output_filename=None):
