@@ -191,6 +191,7 @@ def parse_chatgpt_response_to_dataframe(chatgpt_response):
         df = df.dropna(how='all')
         
         print(f"Created DataFrame with {len(df)} rows")
+        print(f"DataFrame: {df}")
         return df
         
     except Exception as e:
