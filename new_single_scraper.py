@@ -120,15 +120,16 @@ def process_with_chatgpt(text_content, rep_firm_name=None):
         - Product Covered (extract the exact products listed or mentioned on the page; be as specific as possible)
         - Product Space (use broad water/wastewater treatment process steps, e.g., Flow Control, Clarification, Disinfection, Aeration, Filtration, Chemical Feed, etc. Do NOT use specific model names or chemicals. If you cannot be specific, use 'Water Treatment' or 'Wastewater Treatment' as a catch-all, but only as a last resort)
 
-        Rep Firm Name: {rep_firm_name if rep_firm_name else "Extract from content"}
+        {f"Rep Firm Name: {rep_firm_name}" if rep_firm_name else "IMPORTANT: Extract the actual rep firm name from the website content. Look for company names, business names, or organization names that appear to be the rep firm."}
 
         Website content (select all and copy):
         {content_preview}
 
         Please analyze this content carefully and extract any information about:
-        1. Manufacturers or brands the rep firm represents (official, properly capitalized names only)
-        2. Equipment categories or product types they offer (exact products listed; be as specific as possible)
-        3. Water/wastewater treatment process steps they cover (broad categories only; be as specific as possible)
+        1. The actual name of the rep firm (look for company names, business names, or organization names)
+        2. Manufacturers or brands the rep firm represents (official, properly capitalized names only)
+        3. Equipment categories or product types they offer (exact products listed; be as specific as possible)
+        4. Water/wastewater treatment process steps they cover (broad categories only; be as specific as possible)
 
         IMPORTANT: Each individual product should be on its own row. If a brand carries multiple products, create separate rows for each product. For example:
         - If you see "Brand A carries pumps, valves, and filters", create 3 separate rows
@@ -136,13 +137,14 @@ def process_with_chatgpt(text_content, rep_firm_name=None):
         - Do not combine multiple products into a single cell
 
         Format the output as CSV with exactly these 4 columns: Rep Firm Name, Brand Carried, Product Covered, Product Space
+        IMPORTANT: Repeat the Rep Firm Name and Brand Carried in every row - do not leave cells empty even if the value is the same as the row above.
         Include the header row. Do not include any other text, comments, or formatting."""
     
     try:
         response = client.chat.completions.create(
             model="gpt-4",  # or your specific model name
             messages=[
-                {"role": "system", "content": "You are a helpful assistant that extracts and categorizes rep firm line sheet information. Always return data in CSV format with exactly 4 columns: Rep Firm Name, Brand Carried, Product Covered, Product Space. Each individual product should be on its own row, even if multiple products are mentioned together."},
+                {"role": "system", "content": "You are a helpful assistant that extracts and categorizes rep firm line sheet information. Always return data in CSV format with exactly 4 columns: Rep Firm Name, Brand Carried, Product Covered, Product Space. Each individual product should be on its own row, even if multiple products are mentioned together. Always extract the actual rep firm name from the website content."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=4000,
