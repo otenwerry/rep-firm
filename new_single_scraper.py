@@ -110,19 +110,27 @@ def process_with_chatgpt(text_content, rep_firm_name=None):
     
     client = setup_azure_openai_client()
     
-    # Construct the prompt based on the context requirements
-    prompt = f"""can you break this out into a table of Rep Firm Name - Brand Carried (one at a time) - Product Covered - Space for space, keep it to broad categories for steps in water/wastewater treatment. So for example, aerators, flocculators, or coagulators but not Spike Aerators, Paddle Wheel Flocculators, or Inorganic Coagulants (for example). it's from a website and is unstructured data so please format only what's relevant.
+    # Create a preview of the content (first 2000 characters) to avoid token limits
+    content_preview = text_content[:2000] + "..." if len(text_content) > 2000 else text_content
+    
+    # Construct the detailed prompt for better extraction
+    prompt = f"""Please extract a table with the following columns:
+        - Rep Firm Name (must be the official, properly capitalized name of the rep firm, not an abbreviation, domain, or placeholder)
+        - Brand Carried (must be the official, properly capitalized brand/manufacturer name, not a filename, abbreviation, or unclear string)
+        - Product Covered (extract the exact products listed or mentioned on the page; be as specific as possible)
+        - Product Space (use broad water/wastewater treatment process steps, e.g., Flow Control, Clarification, Disinfection, Aeration, Filtration, Chemical Feed, etc. Do NOT use specific model names or chemicals. If you cannot be specific, use 'Water Treatment' or 'Wastewater Treatment' as a catch-all, but only as a last resort)
 
-Please format the output as a clean table with these columns:
-- Rep Firm Name
-- Brand Carried  
-- Product Covered
-- Space (water/wastewater treatment category)
+        Rep Firm Name: {rep_firm_name if rep_firm_name else "Extract from content"}
 
-{f"Rep Firm Name: {rep_firm_name}" if rep_firm_name else ""}
+        Website content (select all and copy):
+        {content_preview}
 
-Website content:
-{text_content}"""
+        Please analyze this content carefully and extract any information about:
+        1. Manufacturers or brands the rep firm represents (official, properly capitalized names only)
+        2. Equipment categories or product types they offer (exact products listed; be as specific as possible)
+        3. Water/wastewater treatment process steps they cover (broad categories only; be as specific as possible)
+
+        Format the output as a clean table with the columns specified above."""
     
     try:
         response = client.chat.completions.create(
@@ -169,7 +177,7 @@ def parse_chatgpt_response_to_dataframe(chatgpt_response):
             continue
             
         # Check if this looks like a header row
-        if any(keyword in line.lower() for keyword in ['rep firm', 'brand', 'product', 'space']):
+        if any(keyword in line.lower() for keyword in ['rep firm', 'brand', 'product', 'space', 'product space']):
             # Extract headers
             if '|' in line:
                 headers = [h.strip() for h in line.split('|')]
@@ -206,10 +214,10 @@ def parse_chatgpt_response_to_dataframe(chatgpt_response):
         if headers and len(headers) >= 4:
             df = pd.DataFrame(table_data, columns=headers[:4])
         else:
-            df = pd.DataFrame(table_data, columns=['Rep Firm Name', 'Brand Carried', 'Product Covered', 'Space'])
+            df = pd.DataFrame(table_data, columns=['Rep Firm Name', 'Brand Carried', 'Product Covered', 'Product Space'])
     else:
         # Create empty DataFrame with proper columns
-        df = pd.DataFrame(columns=['Rep Firm Name', 'Brand Carried', 'Product Covered', 'Space'])
+        df = pd.DataFrame(columns=['Rep Firm Name', 'Brand Carried', 'Product Covered', 'Product Space'])
     
     # Clean up the data
     df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)

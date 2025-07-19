@@ -82,10 +82,10 @@ output_file = save_to_excel(df, "output.xlsx")
 
 The scraper generates Excel files with the following columns:
 
-- **Rep Firm Name**: Name of the rep firm
-- **Brand Carried**: Individual brand/manufacturer (one per row)
-- **Product Covered**: Specific product or product category
-- **Space**: Water/wastewater treatment category (e.g., aerators, flocculators, coagulators)
+- **Rep Firm Name**: Official, properly capitalized name of the rep firm
+- **Brand Carried**: Official, properly capitalized brand/manufacturer name (one per row)
+- **Product Covered**: Exact products listed or mentioned on the page (as specific as possible)
+- **Product Space**: Broad water/wastewater treatment process steps (e.g., Flow Control, Clarification, Disinfection, Aeration, Filtration, Chemical Feed)
 
 ## How It Works
 
@@ -144,11 +144,11 @@ The scraper includes comprehensive error handling for:
 
 The generated Excel file will contain rows like:
 
-| Rep Firm Name | Brand Carried | Product Covered | Space |
-|---------------|---------------|-----------------|-------|
-| ABC Rep Firm  | Brand A       | Surface Aerators | Aerators |
-| ABC Rep Firm  | Brand A       | Paddle Mixers   | Mixers |
-| ABC Rep Firm  | Brand B       | Flocculators    | Flocculators |
+| Rep Firm Name | Brand Carried | Product Covered | Product Space |
+|---------------|---------------|-----------------|---------------|
+| ABC Rep Firm  | Brand A       | Surface Aerators | Aeration |
+| ABC Rep Firm  | Brand A       | Paddle Mixers   | Mixing |
+| ABC Rep Firm  | Brand B       | Flocculators    | Clarification |
 
 ## Troubleshooting
 
