@@ -130,7 +130,7 @@ def process_with_chatgpt(text_content, rep_firm_name=None):
         2. Equipment categories or product types they offer (exact products listed; be as specific as possible)
         3. Water/wastewater treatment process steps they cover (broad categories only; be as specific as possible)
 
-        Format the output as a clean table with the columns specified above."""
+        Format the output as a clean table with the 4 columns specified above. Do not include any other columns, text, or comments other than those four specified."""
     
     try:
         response = client.chat.completions.create(
