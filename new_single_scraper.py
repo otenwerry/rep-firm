@@ -164,6 +164,9 @@ def parse_chatgpt_response_to_dataframe(chatgpt_response):
         pd.DataFrame: Structured data
     """
     print("Parsing ChatGPT response to DataFrame...")
+
+    print("Raw ChatGPT response:")
+    print(chatgpt_response)
     
     try:
         # Use pandas to read CSV directly from the string
