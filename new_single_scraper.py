@@ -115,30 +115,31 @@ def process_with_chatgpt(text_content, rep_firm_name=None):
     
     # Construct the detailed prompt for better extraction
     prompt = f"""Please extract information with the following columns:
-        - Rep Firm Name (must be the official, properly capitalized name of the rep firm, not an abbreviation, domain, or placeholder)
-        - Brand Carried (must be the official, properly capitalized brand/manufacturer name, not a filename, abbreviation, or unclear string)
-        - Product Covered (extract the exact products listed or mentioned on the page; be as specific as possible)
-        - Product Space (use broad water/wastewater treatment process steps, e.g., Flow Control, Clarification, Disinfection, Aeration, Filtration, Chemical Feed, etc. Do NOT use specific model names or chemicals. If you cannot be specific, use 'Water Treatment' or 'Wastewater Treatment' as a catch-all, but only as a last resort)
+    - Rep Firm Name (must be the official, properly capitalized name of the rep firm, not an abbreviation, domain, or placeholder. Drop legal suffixes like ", Inc.", ", LLC", ", Corp", ", Ltd", ", Co", ", Company" - just use the main business name)
+    - Brand Carried (must be the official, properly capitalized brand/manufacturer name, not a filename, abbreviation, or unclear string. Drop legal suffixes like ", Inc.", ", LLC", ", Corp", ", Ltd", ", Co", ", Company" - just use the main brand name)
+    - Product Covered (extract the exact products listed or mentioned on the page; be as specific as possible)
+    - Product Space (use broad water/wastewater treatment process steps, e.g., Flow Control, Clarification, Disinfection, Aeration, Filtration, Chemical Feed, etc. Do NOT use specific model names or chemicals. If you cannot be specific, use 'Water Treatment' or 'Wastewater Treatment' as a catch-all, but only as a last resort)
 
-        {f"Rep Firm Name: {rep_firm_name}" if rep_firm_name else "IMPORTANT: Extract the actual rep firm name from the website content. Look for company names, business names, or organization names that appear to be the rep firm."}
+    {f"Rep Firm Name: {rep_firm_name}" if rep_firm_name else "IMPORTANT: Extract the actual rep firm name from the website content. Look for company names, business names, or organization names that appear to be the rep firm."}
 
-        Website content (select all and copy):
-        {content_preview}
+    Website content (select all and copy):
+    {content_preview}
 
-        Please analyze this content carefully and extract any information about:
-        1. The actual name of the rep firm (look for company names, business names, or organization names)
-        2. Manufacturers or brands the rep firm represents (official, properly capitalized names only)
-        3. Equipment categories or product types they offer (exact products listed; be as specific as possible)
-        4. Water/wastewater treatment process steps they cover (broad categories only; be as specific as possible)
+    Please analyze this content carefully and extract any information about:
+    1. The actual name of the rep firm (look for company names, business names, or organization names)
+    2. Manufacturers or brands the rep firm represents (official, properly capitalized names only)
+    3. Equipment categories or product types they offer (exact products listed; be as specific as possible)
+    4. Water/wastewater treatment process steps they cover (broad categories only; be as specific as possible)
 
-        IMPORTANT: Each individual product should be on its own row. If a brand carries multiple products, create separate rows for each product. For example:
-        - If you see "Brand A carries pumps, valves, and filters", create 3 separate rows
-        - If you see "Brand B offers Surface Aerators and Submersible Mixers", create 2 separate rows
-        - Do not combine multiple products into a single cell
+    IMPORTANT: Each individual product should be on its own row. If a brand carries multiple products, create separate rows for each product. For example:
+    - If you see "Brand A carries pumps, valves, and filters", create 3 separate rows
+    - If you see "Brand B offers Surface Aerators and Submersible Mixers", create 2 separate rows
+    - Do not combine multiple products into a single cell
 
-        Format the output as CSV with exactly these 4 columns: Rep Firm Name, Brand Carried, Product Covered, Product Space
-        IMPORTANT: Repeat the Rep Firm Name and Brand Carried in every row - do not leave cells empty even if the value is the same as the row above.
-        Include the header row. Do not include any other text, comments, or formatting."""
+    Format the output as CSV with exactly these 4 columns: Rep Firm Name, Brand Carried, Product Covered, Product Space
+    IMPORTANT: Repeat the Rep Firm Name and Brand Carried in every row - do not leave cells empty even if the value is the same as the row above.
+    CRITICAL: Remove legal suffixes like ", Inc.", ", LLC", ", Corp", ", Ltd", ", Co", ", Company" from company names to avoid CSV parsing issues.
+    Include the header row. Do not include any other text, comments, or formatting."""
     
     try:
         response = client.chat.completions.create(
@@ -270,7 +271,7 @@ def scrape_rep_firm_line_sheet(url, rep_firm_name=None, output_filename=None):
 # Example usage
 if __name__ == "__main__":
     # Example usage - replace with actual URL
-    example_url = "https://shapecal.com/equipment/"
+    example_url = "https://t2water.com/manufacturers.html"
     
     try:
         output_file = scrape_rep_firm_line_sheet(
